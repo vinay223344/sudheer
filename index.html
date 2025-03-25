@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Article Summarizer & Translator</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            padding: 0;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 700px;
+            margin: auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+        }
+        h2 {
+            text-align: center;
+        }
+        textarea, select, input, button {
+            width: 100%;
+            margin: 10px 0;
+            padding: 10px;
+            font-size: 16px;
+        }
+        button {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #218838;
+        }
+        .result-box {
+            margin-top: 20px;
+            padding: 10px;
+            background: #e9ecef;
+            border-radius: 5px;
+        }
+        .chat-container {
+            margin-top: 20px;
+            padding: 15px;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            background-color: white;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Article Summarizer & Translator</h2>
+    
+    <label for="articleUrl">Enter Article URL:</label>
+    <input type="text" id="articleUrl" placeholder="Paste article URL here...">
+    
+    <label for="language">Select Language:</label>
+    <select id="language">
+        <option value="en">English</option>
+        <option value="te">Telugu</option>
+        <option value="hi">Hindi</option>
+    </select>
+
+    <button onclick="summarizeArticle()">Summarize & Translate</button>
+
+    <div class="result-box">
+        <h3>Summary:</h3>
+        <p id="summary">No summary yet.</p>
+        <h3>Translated Summary:</h3>
+        <p id="translatedSummary">No translation yet.</p>
+    </div>
+
+    <div class="chat-container">
+        <h3>Ask a Question</h3>
+        <input type="text" id="question" placeholder="Ask something about the article...">
+        <button onclick="askQuestion()">Get Answer</button>
+        <p><strong>Answer:</strong> <span id="answer">No answer yet.</span></p>
+    </div>
+</div>
+
+<script>
+    function summarizeArticle() {
+        let url = document.getElementById("articleUrl").value;
+        let language = document.getElementById("language").value;
+
+        if (!url) {
+            alert("Please enter an article URL!");
+            return;
+        }
+
+        $.ajax({
+            url: "/summarize",
+            type: "POST",
+            contentType: "application/json",
+            data: JSON.stringify({ url: url, targetLanguage: language }),
+            success: function(response) {
+                document.getElementById("summary").innerText = response.original_summary || response.summary;
+                document.getElementById("translatedSummary").innerText = response.summary;
+            },
+            error: function() {
+                alert("Error fetching summary. Please try again.");
+            }
+        });
+    }
+
+    function askQuestion() {
+        let question = document.getElementById("question").value;
+
+        if (!question) {
+            alert("Please enter a question!");
+            return;
+        }
+
+        $.ajax({
+            url: "/ask",
+            type: "POST",
+            contentType: "application/json",
+            data: JSON.stringify({ question: question }),
+            success: function(response) {
+                document.getElementById("answer").innerText = response.answer;
+            },
+            error: function() {
+                alert("Error getting answer. Try again.");
+            }
+        });
+    }
+</script>
+
+</body>
+</html>
